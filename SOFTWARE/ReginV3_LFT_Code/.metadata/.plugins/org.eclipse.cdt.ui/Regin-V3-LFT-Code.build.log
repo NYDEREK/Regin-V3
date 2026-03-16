@@ -1,0 +1,20 @@
+22:13:29 **** Incremental Build of configuration Debug for project Regin-V3-LFT-Code ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/SimpleParser.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32G474xx -c -I../Core/Inc -I../FATFS/Target -I../FATFS/App -I../Drivers/STM32G4xx_HAL_Driver/Inc -I../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I../Middlewares/Third_Party/FatFs/src -I../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/SimpleParser.d" -MT"Core/Src/SimpleParser.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/SimpleParser.o"
+../Core/Src/SimpleParser.c:57:13: warning: 'Turbine_Speed_change' defined but not used [-Wunused-function]
+   57 | static void Turbine_Speed_change(LineFollower_t *LF)
+      |             ^~~~~~~~~~~~~~~~~~~~
+arm-none-eabi-gcc -o "Regin-V3-LFT-Code.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\SNYDE\Documents\GitHub\Regin-V3\SOFTWARE\ReginV3_LFT_Code\Regin-V3-LFT-Code\STM32G474RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Regin-V3-LFT-Code.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Regin-V3-LFT-Code.elf
+ 
+arm-none-eabi-size  Regin-V3-LFT-Code.elf 
+arm-none-eabi-objdump -h -S Regin-V3-LFT-Code.elf  > "Regin-V3-LFT-Code.list"
+   text	   data	    bss	    dec	    hex	filename
+  61004	    492	   3380	  64876	   fd6c	Regin-V3-LFT-Code.elf
+Finished building: default.size.stdout
+ 
+Finished building: Regin-V3-LFT-Code.list
+ 
+
+22:13:32 Build Finished. 0 errors, 1 warnings. (took 3s.812ms)
+

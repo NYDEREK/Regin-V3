@@ -1,0 +1,16 @@
+../Core/Src/SimpleParser.c:21:6:Parser_TakeLine	3
+../Core/Src/SimpleParser.c:45:13:Sensor_treshold_change	4
+../Core/Src/SimpleParser.c:57:13:Turbine_Speed_change	3
+../Core/Src/SimpleParser.c:68:13:Turbine_Prep_Time_change	3
+../Core/Src/SimpleParser.c:77:13:kp_change	3
+../Core/Src/SimpleParser.c:87:13:kd_change	3
+../Core/Src/SimpleParser.c:96:13:Base_speed_change	3
+../Core/Src/SimpleParser.c:106:13:Turbine_speed_change	3
+../Core/Src/SimpleParser.c:118:13:Max_speed_change	3
+../Core/Src/SimpleParser.c:128:13:Sharp_bend_speed_right_change	3
+../Core/Src/SimpleParser.c:137:13:Sharp_bend_speed_left_change	3
+../Core/Src/SimpleParser.c:146:13:Bend_speed_right_change	3
+../Core/Src/SimpleParser.c:155:13:Bend_speed_left_change	3
+../Core/Src/SimpleParser.c:164:13:App_Controll	6
+../Core/Src/SimpleParser.c:232:13:Mode_change	3
+../Core/Src/SimpleParser.c:241:6:Parser_Parse	13

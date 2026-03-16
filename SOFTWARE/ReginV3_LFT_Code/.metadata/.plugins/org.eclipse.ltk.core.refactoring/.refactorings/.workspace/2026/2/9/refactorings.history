@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">&#x0A;<refactoring comment="Delete resource &apos;Regin-V3-LFT-Code/Core/Src/motor.c&apos;" deleteContents="false" description="Delete resource &apos;Regin-V3-LFT-Code/Core/Src/motor.c&apos;" element1="/Regin-V3-LFT-Code/Core/Src/motor.c" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1772209196854"/>&#x0A;<refactoring comment="Delete resource &apos;Regin-V3-LFT-Code/Core/Inc/motor.h&apos;" deleteContents="false" description="Delete resource &apos;Regin-V3-LFT-Code/Core/Inc/motor.h&apos;" element1="/Regin-V3-LFT-Code/Core/Inc/motor.h" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1772209201737"/>
+</session>
