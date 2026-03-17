@@ -355,13 +355,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		else
 		{
 			Vaccuming = 0;
-		    /*Erase all channels*/
-		    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_2, 0);
-		    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 0);
-		    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 0);
-		    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
-		    /*STOP motor drivers*/
-			HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_SET);
+		    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_2, 999);
+		    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 999);
+		    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 999);
+		    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 999);
+
 			/*STOP Turbine*/
 			ESC_SetThrottle(1000);
 

@@ -7,4 +7,4 @@
 ../Core/Src/main.c:265:6:SystemClock_Config	3
 ../Core/Src/main.c:309:6:HAL_UART_RxCpltCallback	4
 ../Core/Src/main.c:324:6:HAL_TIM_PeriodElapsedCallback	6
-../Core/Src/main.c:377:6:Error_Handler	1
+../Core/Src/main.c:376:6:Error_Handler	1
