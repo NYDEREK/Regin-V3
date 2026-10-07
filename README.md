@@ -12,19 +12,22 @@ Najwazniejsze pliki:
 - `Core/Src/SimpleParser.c` - komendy Bluetooth z aplikacji.
 - `Core/Inc/robot_config.h` - stale robota (PWM, ESC, bateria, Bluetooth).
 
-## Komunikacja z aplikacja GRUZIK4.0
+## Aplikacja Android
 
-Firmware mowi tym samym protokolem co [GRUZIK4.0](https://github.com/NYDEREK/GRUZIK4.0), wiec Regina mozna sterowac aplikacja Android z tamtego repo (`Android App/RobotApp`). Wystarczy sparowac modul HC-04 (UART 9600) i polaczyc sie z aplikacji.
+Wlasna aplikacja Regina jest w `SOFTWARE/Android App/ReginApp`, gotowy plik: `apk/REGIN-V3-debug.apk`. Ma zakladki `Drive` (turbina, PID, predkosci), `Sensors` (wszystkie 16 czujnikow jako slupki z wartosciami), `Joystick`, `Log` i `Settings`. Szczegoly w README aplikacji.
 
-Co dziala:
+Firmware mowi tym samym protokolem co [GRUZIK4.0](https://github.com/NYDEREK/GRUZIK4.0), wiec dziala tez aplikacja z tamtego repo (`Android App/RobotApp`), ale pokazuje tylko 12 czujnikow i ma zakladki mapowania, ktorych Regin nie obsluguje. Modul Bluetooth to HC-04 na UART 9600.
 
-- `Drive` - nastawy PID i predkosci, start (`StartNormal=1`, `Mode=Y`) i stop (`Mode=N`).
-- `Joystick` - `Manual=<lewy>,<prawy>`, robot staje po 350 ms bez pakietow.
-- czyszczenie opon - `CleanSpeed=<pwm>`, `Clean=1`, `Clean=0`.
-- `Debug` - `Telemetry=debug` wysyla linie `DBG,...` z pozycja linii i surowymi odczytami czujnikow (od lewej do prawej). Aplikacja pokazuje pierwsze 12 z 16 czujnikow.
-- zmiana nazwy modulu - `BtNameNow=<nazwa>` (modul musi byc w trybie AT).
+Komendy:
 
-Regin nie ma enkoderow, IMU ani karty SD, wiec zakladki `Mapping` i `Odometry` nie dzialaja. Robot odpowiada wtedy bledem i nie rusza:
+- nastawy: `Kp`, `Kd`, `Treshold`, `Base_speed`, `Max_speed`, `Sharp_bend_speed_left/right`, `Bend_speed_left/right`, `Turbine_Speed`, `Turbine_Prep_Time`.
+- start i stop: `StartNormal=1`, `Mode=Y`, `Mode=N`.
+- joystick: `Manual=<lewy>,<prawy>`, robot staje po 350 ms bez pakietow.
+- czyszczenie opon: `CleanSpeed=<pwm>`, `Clean=1`, `Clean=0`.
+- czujniki: `Telemetry=debug` wysyla co 250 ms linie `DBG,<pozycja>,<aktywne>,<ostatni koniec>,<9 pol enkoderow/IMU = 0>,<S1>..<S16>` (czujniki od lewej do prawej), `Telemetry=off` konczy.
+- nazwa modulu: `BtNameNow=<nazwa>` (modul musi byc w trybie AT).
+
+Regin nie ma enkoderow, IMU ani karty SD, wiec mapowanie i odometria (zakladki `Mapping` i `Odometry` w aplikacji GRUZIK4.0) nie dzialaja. Robot odpowiada wtedy bledem i nie rusza:
 
 ```text
 MAP_ERROR,unsupported,no_odometry_sd
