@@ -12,6 +12,14 @@ Najwazniejsze pliki:
 - `Core/Src/SimpleParser.c` - komendy Bluetooth z aplikacji.
 - `Core/Inc/robot_config.h` - stale robota (PWM, ESC, bateria, Bluetooth).
 
+## Konwencja czujnikow i PID
+
+- czujnik 1 jest po lewej stronie robota, 16 po prawej (patrzac w kierunku jazdy), kolejnosc jest w `LF_SensorOrder` w `Line_Follower.c`.
+- pozycja linii: czujnik k waży `k * 1000`, czyli 1000 (lewa krawedz) .. 16000 (prawa), srodek 8500.
+- `error = pozycja - 8500`: plus oznacza linie na prawo od srodka, wtedy lewy silnik przyspiesza i robot skreca w prawo.
+- `Last_end`: 0 = linie ostatnio widzial lewy skrajny czujnik, 1 = prawy. Po zgubieniu linii `sharp_turn()` kreci w te strone.
+- `Sharp_bend_speed_left` / `Bend_speed_left` to zewnetrzne kolo w tym skrecie, `*_right` wewnetrzne (domyslnie 120 i -75).
+
 ## Aplikacja Android
 
 Wlasna aplikacja Regina jest w `SOFTWARE/Android App/ReginApp`, gotowy plik: `apk/REGIN-V3-debug.apk`. Ma zakladki `Drive` (turbina, PID, predkosci), `Sensors` (wszystkie 16 czujnikow jako slupki z wartosciami), `Joystick`, `Log` i `Settings`. Szczegoly w README aplikacji.
