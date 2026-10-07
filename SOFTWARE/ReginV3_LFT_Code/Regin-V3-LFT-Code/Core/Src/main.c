@@ -30,6 +30,7 @@
 #include "Line_Follower.h"
 #include "SimpleParser.h"
 #include "RingBuffer.h"
+#include "robot_config.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,24 +51,16 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-#define ESC_MIN 1000
-#define ESC_MAX 2000
-
 LineFollower_t GRUZIK;
 
-/*Communication*/
-char buffer[28];
+/*Communication (GRUZIK4.0 app protocol, see SimpleParser.c)*/
 uint8_t RxData;
-RingBuffer_t RB, ReceiveBuffer;
-uint8_t ReceivedData[32];
-uint8_t ReceivedLines;
-uint16_t my_motor_value[3] = {0, 0, 0};
+RingBuffer_t ReceiveBuffer;
+uint8_t ReceivedData[PARSER_LINE_BUFFER_SIZE];
+volatile uint8_t ReceivedLines;
 
 uint8_t Vaccuming;
 uint32_t Vaccuming_Timer;
-
-uint8_t Breaking;
-uint32_t Breaking_Timer;
 
 /* USER CODE END PV */
 
@@ -79,18 +72,6 @@ void delay_us (uint16_t us) //Blocking function
 {
 	__HAL_TIM_SET_COUNTER(&htim1,0);  // set the counter value a 0
 	while (__HAL_TIM_GET_COUNTER(&htim1) < us);  // wait for the counter to reach the us input in the parameter
-}
-
-void SensorRead1()
-{
-	HAL_GPIO_WritePin(S0_GPIO_Port, S0_Pin, GPIO_PIN_SET);
-	HAL_GPIO_WritePin(S1_GPIO_Port, S1_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, GPIO_PIN_RESET);
-
-	delay_us(100);
-
-	GRUZIK.SensorArray[0] = GRUZIK.Adc1_Values[0];
 }
 
 void SensorRead()
@@ -110,16 +91,26 @@ void SensorRead()
 
 void ESC_SetThrottle(uint16_t us)
 {
-    if(us < ESC_MIN) us = ESC_MIN;
-    if(us > ESC_MAX) us = ESC_MAX;
+    if(us < ROBOT_ESC_MIN_US) us = ROBOT_ESC_MIN_US;
+    if(us > ROBOT_ESC_MAX_US) us = ROBOT_ESC_MAX_US;
 
     __HAL_TIM_SET_COMPARE(&htim16, TIM_CHANNEL_1, us);
 }
 
 void ESC_Arm(void)
 {
-    ESC_SetThrottle(1000);                  // ustaw minimum gazu
-    HAL_Delay(3000);                           // 2 sekundy stabilnego sygnału
+    ESC_SetThrottle(ROBOT_ESC_MIN_US);         // ustaw minimum gazu
+    HAL_Delay(3000);                           // 3 sekundy stabilnego sygnału
+}
+
+static void Motors_Brake(void)
+{
+	/*Both half bridges high = brake*/
+	HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_SET);
+	__HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_2, 999);
+	__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 999);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 999);
+	__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 999);
 }
 /* USER CODE END PFP */
 
@@ -195,10 +186,11 @@ int main(void)
    	}
 
    	GRUZIK.Speed_offset = 0.014;
+   	GRUZIK.Turbine_Prep_Time = ROBOT_TURBINE_PREP_DEFAULT_MS;
 
    	HAL_GPIO_WritePin(E_GPIO_Port, E_Pin, GPIO_PIN_RESET);
 
-   	//50Hz, 1Hz and 2KHz timers
+   	//TIM20 200Hz control loop, TIM1 1MHz counter for delay_us
 	HAL_TIM_Base_Start_IT(&htim20);
 	HAL_TIM_Base_Start(&htim1);
 
@@ -250,10 +242,16 @@ int main(void)
 	if(ReceivedLines > 0)
 	{
 	  Parser_TakeLine(&ReceiveBuffer, ReceivedData);
-	  Parser_Parse(ReceivedData,&GRUZIK);
 
+	  __disable_irq();
 	  ReceivedLines--;
+	  __enable_irq();
+
+	  Parser_Parse(ReceivedData,&GRUZIK);
 	}
+
+	/*Line sensor stream for the app Debug tab, only while stopped*/
+	Parser_ServiceTelemetry(&GRUZIK);
   }
   /* USER CODE END 3 */
 }
@@ -317,13 +315,18 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 				ReceivedLines++;
 			}
 		}
+		else if(ReceivedLines == 0)
+		{
+			/*Buffer full without a complete line, drop the garbage so new commands still get in*/
+			RB_Flush(&ReceiveBuffer);
+		}
     	HAL_UART_Receive_IT(&huart1,&RxData, 1);
 	}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	//Motor control and PID 2KHz
+	//Motor control and PID 200Hz
 	if(htim->Instance == TIM20)
 	{
 		/*Timer registers monitoring*/
@@ -338,7 +341,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		if(GRUZIK.PowerMode == Start)
 		{
 			HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_SET);
-			/*Following the line after the vacuuming part is done*/
+			/*Following the line after the vacuuming part (Turbine_Prep_Time) is done*/
 			if((Vaccuming != 1))
 			{
 				Vaccuming = 1;
@@ -346,24 +349,28 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 				ESC_SetThrottle(GRUZIK.Turbine_Speed);
 			}
-			if((Vaccuming == 1)&&(HAL_GetTick() > Vaccuming_Timer + 1000))
+			if((HAL_GetTick() - Vaccuming_Timer) >= GRUZIK.Turbine_Prep_Time)
 			{
-				//HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_SET);
 				PID_control(&GRUZIK);
 			}
 		}
 		else
 		{
 			Vaccuming = 0;
-			HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_SET);
-		    __HAL_TIM_SET_COMPARE(&htim5, TIM_CHANNEL_2, 999);
-		    __HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_1, 999);
-		    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, 999);
-		    __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 999);
 
 			/*STOP Turbine*/
-			ESC_SetThrottle(1000);
+			ESC_SetThrottle(ROBOT_ESC_MIN_US);
 
+			/*Joystick and tire cleaning from the app drive the motors directly*/
+			Parser_ServiceManualDriveTimeout(&GRUZIK);
+			if((ManualDriveActive != 0u) || (TireCleaningActive != 0u))
+			{
+				HAL_GPIO_WritePin(INH_GPIO_Port, INH_Pin, GPIO_PIN_SET);
+			}
+			else
+			{
+				Motors_Brake();
+			}
 		}
 	}
 }

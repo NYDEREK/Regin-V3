@@ -3,6 +3,8 @@
  *
  *  Created on: Aug 28, 2024
  *      Author: Szymon
+ *
+ * UART command parser, protocol compatible with the GRUZIK4.0 Android app.
  */
 
 #ifndef INC_SIMPLEPARSER_H_
@@ -14,9 +16,22 @@
 #include "Line_Follower.h"
 
 #define ENDLINE '\n'
-#define MY_NAME "GRUZIK3.0"
+#define PARSER_LINE_BUFFER_SIZE 64u
+
+typedef enum
+{
+	TELEMETRY_OFF = 0,
+	TELEMETRY_ODOM = 1,
+	TELEMETRY_DEBUG = 2
+} TelemetryMode_t;
+
+extern volatile uint8_t TelemetryMode;
+extern volatile uint8_t TireCleaningActive;
+extern volatile uint8_t ManualDriveActive;
 
 void Parser_TakeLine(RingBuffer_t *Buf, uint8_t *ReceivedData);
 void Parser_Parse(uint8_t *ReceivedData, LineFollower_t *LineFollower);
+void Parser_ServiceManualDriveTimeout(LineFollower_t *LineFollower);
+void Parser_ServiceTelemetry(LineFollower_t *LineFollower);
 
 #endif /* INC_SIMPLEPARSER_H_ */
