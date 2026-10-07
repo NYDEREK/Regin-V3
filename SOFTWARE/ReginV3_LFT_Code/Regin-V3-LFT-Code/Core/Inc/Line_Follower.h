@@ -8,6 +8,9 @@
 #ifndef INC_LINE_FOLLOWER_H_
 #define INC_LINE_FOLLOWER_H_
 
+#define LF_SENSOR_COUNT     16
+#define LF_POSITION_CENTER  8500
+
 typedef struct
 {
 	//Power mode
@@ -99,6 +102,9 @@ enum PowerState
 	Stop,
 	Start,
 };
+//Sensors from left to right (SensorArray indexes)
+extern const uint8_t LF_SensorOrder[LF_SENSOR_COUNT];
+
 //Functions
 void PID_control(LineFollower_t *LF);
 int LineFollower_UpdatePosition(LineFollower_t *LF);

@@ -124,6 +124,8 @@ public class MainActivity extends Activity {
     private TextView joystickStatusText;
     private SensorBarsView sensorBars;
     private TextView sensorSummaryText;
+    private TextView sensorErrorText;
+    private TextView sensorPositionText;
     private Button streamButton;
 
     private long lastManualSendMs;
@@ -377,11 +379,19 @@ public class MainActivity extends Activity {
         sensorBars = new SensorBarsView(this);
         page.addView(sensorBars, sizedTopMargin(LinearLayout.LayoutParams.MATCH_PARENT, dp(280), 16));
 
+        LinearLayout readouts = row();
+        sensorErrorText = readoutValue("-");
+        sensorPositionText = readoutValue("- / " + sensorCentre(SensorBarsView.COUNT));
+        readouts.addView(readout("Error", sensorErrorText), weighted(0, 4));
+        readouts.addView(readout("Position / centre", sensorPositionText), weighted(4, 0));
+        page.addView(readouts, topMargin(12));
+
         sensorSummaryText = label("No data", 14, MUTED);
         sensorSummaryText.setTypeface(Typeface.MONOSPACE);
         page.addView(sensorSummaryText, topMargin(10));
 
-        TextView legend = label("Streams only while the robot is stopped. Dashed line is the threshold.", 13, MUTED);
+        TextView legend = label("Streams only while the robot is stopped. Dashed line is the threshold, "
+                + "tick under the bars is the centre. Error = centre - position, same as the PID.", 13, MUTED);
         page.addView(legend, topMargin(6));
         return page;
     }
@@ -707,13 +717,25 @@ public class MainActivity extends Activity {
 
         setStreaming(true);
         sensorBars.setData(values, position, active);
+
+        // Same as PID_control(): error = centre - position, centre 8500 for 16 sensors
+        int centre = sensorCentre(count);
+        String lastEndText = "Last end sensor " + (lastEnd == 1 ? count : 1);
         if (active > 0) {
-            sensorSummaryText.setText(String.format(Locale.US, "Position %-6d Active %-3d Last end %s",
-                    position, active, lastEnd == 1 ? "right" : "left"));
+            int error = centre - position;
+            sensorErrorText.setText(error > 0 ? "+" + error : String.valueOf(error));
+            sensorPositionText.setText(position + " / " + centre);
+            sensorSummaryText.setText(String.format(Locale.US, "Active %-4d %s", active, lastEndText));
         } else {
-            sensorSummaryText.setText(String.format(Locale.US, "Line lost      Last end %s",
-                    lastEnd == 1 ? "right" : "left"));
+            sensorErrorText.setText("-");
+            sensorPositionText.setText("- / " + centre);
+            sensorSummaryText.setText("Line lost   " + lastEndText);
         }
+    }
+
+    private static int sensorCentre(int sensorCount) {
+        // Sensor k (1..n) weighs k * 1000, the middle of the bar is (n + 1) * 500
+        return (sensorCount + 1) * 500;
     }
 
     private void setStreaming(boolean value) {
@@ -1077,6 +1099,21 @@ public class MainActivity extends Activity {
         label.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
         label.setPadding(0, dp(20), 0, dp(2));
         return label;
+    }
+
+    private LinearLayout readout(String title, TextView value) {
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.addView(label(title, 12, MUTED), matchWrap());
+        box.addView(value, matchWrap());
+        return box;
+    }
+
+    private TextView readoutValue(String text) {
+        TextView value = label(text, 24, TEXT);
+        value.setTypeface(Typeface.create("sans-serif-medium", Typeface.NORMAL));
+        value.setFontFeatureSettings("tnum");
+        return value;
     }
 
     private View hairline() {

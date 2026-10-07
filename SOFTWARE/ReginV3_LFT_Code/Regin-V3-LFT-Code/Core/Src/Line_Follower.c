@@ -12,100 +12,36 @@ extern LineFollower_t GRUZIK;
 
 #define PI_MOTOR_SPEED_REGULATION 1
 
+/*SensorArray index (mux channel order from SensorRead() in main.c) of every sensor,
+ * from the robot's left to its right, looking in the driving direction*/
+const uint8_t LF_SensorOrder[LF_SENSOR_COUNT] = {13, 5, 9, 1, 12, 4, 8, 0, 15, 7, 11, 3, 14, 6, 10, 2};
+
+/*Line position: sensor k (1 = left .. 16 = right) on the line weighs k * 1000,
+ * so the centre of the bar is LF_POSITION_CENTER (8500)*/
 static int SensorRead(LineFollower_t *LF)
 {
 	int pos = 0;
 	int active = 0;
 
-	if (LF->SensorArray[2] > LF->treshold)
+	for (uint8_t i = 0; i < LF_SENSOR_COUNT; i++)
 	{
-		pos += 1000;
-		active++;
-		if(HAL_GetTick() > (LF->LastEndTimer + 1))
+		if (LF->SensorArray[LF_SensorOrder[i]] > LF->treshold)
 		{
- 			LF->LastEndTimer = HAL_GetTick();
-			LF->Last_end = 0;
+			pos += (i + 1) * 1000;
+			active++;
 		}
 	}
-	if (LF->SensorArray[10] > LF->treshold)
+
+	/*Last edge that saw the line, sharp_turn() searches on that side: 0 = left, 1 = right*/
+	if ((LF->SensorArray[LF_SensorOrder[0]] > LF->treshold) && (HAL_GetTick() > (LF->LastEndTimer + 1)))
 	{
-		pos += 2000;
-		active++;
+		LF->LastEndTimer = HAL_GetTick();
+		LF->Last_end = 0;
 	}
-	if (LF->SensorArray[6] > LF->treshold)
+	if ((LF->SensorArray[LF_SensorOrder[LF_SENSOR_COUNT - 1]] > LF->treshold) && (HAL_GetTick() > (LF->LastEndTimer + 1)))
 	{
-		pos += 3000;
-		active++;
-	}
-	if (LF->SensorArray[14] > LF->treshold)
-	{
-		pos += 4000;
-		active++;
-	}
-	if (LF->SensorArray[3] > LF->treshold)
-	{
-		pos += 5000;
-		active++;
-	}
-	if (LF->SensorArray[11] > LF->treshold)
-	{
-		pos += 6000;
-		active++;
-	}
-	if (LF->SensorArray[7] > LF->treshold)
-	{
-		pos += 7000;
-		active++;
-	}
-	if (LF->SensorArray[15] > LF->treshold)
-	{
-		pos += 8000;
-		active++;
-	}
-	if (LF->SensorArray[0] > LF->treshold)
-	{
-		pos += 9000;
-		active++;
-	}
-	if (LF->SensorArray[8] > LF->treshold)
-	{
-		pos += 10000;
-		active++;
-	}
-	if (LF->SensorArray[4] > LF->treshold)
-	{
-		pos += 11000;
-		active++;
-	}
-	if (LF->SensorArray[12] > LF->treshold)
-	{
-		pos += 12000;
-		active++;
-	}
-	if (LF->SensorArray[1] > LF->treshold)
-	{
-		pos += 13000;
-		active++;
-	}
-	if (LF->SensorArray[9] > LF->treshold)
-	{
-		pos += 14000;
-		active++;
-	}
-	if (LF->SensorArray[5] > LF->treshold)
-	{
-		pos += 15000;
-		active++;
-	}
-	if (LF->SensorArray[13] > LF->treshold)
-	{
-		pos += 16000;
-		active++;
-		if(HAL_GetTick() > (LF->LastEndTimer + 1))
-		{
-			LF->LastEndTimer = HAL_GetTick();
-			LF->Last_end = 1;
-		}
+		LF->LastEndTimer = HAL_GetTick();
+		LF->Last_end = 1;
 	}
 
 	LF->actives = active;
@@ -126,7 +62,7 @@ static int SensorRead(LineFollower_t *LF)
 	{
 		if(LF->Last_end == 1)
 		{
-			LF->SensorPosition = 16000;
+			LF->SensorPosition = LF_SENSOR_COUNT * 1000;
 		}
 		else
 		{
@@ -169,6 +105,9 @@ void motor_control(LineFollower_t* LF, float pos_right, float pos_left)
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, (uint32_t)(pos_right));//PRAWY_przod
 	}
 }
+/*Line lost: spin towards the edge that saw it last.
+ * Sharp_bend_speed_left / Bend_speed_left drive the outer wheel,
+ * Sharp_bend_speed_right / Bend_speed_right the inner wheel*/
 void sharp_turn(LineFollower_t *LF)
 {
 
@@ -216,7 +155,8 @@ void PID_control(LineFollower_t *LF)
 {
 
   uint16_t position = SensorRead(LF);
-  float error = 8500 - position;
+  /*Positive error = line right of the centre -> left motor faster -> turn right*/
+  float error = (float)position - LF_POSITION_CENTER;
   //int errordif = error - LF->Last_error;
 
 

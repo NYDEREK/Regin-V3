@@ -118,6 +118,13 @@ class SensorBarsView extends View {
         float thresholdY = bottom - chartHeight * (Math.max(0.0f, Math.min(ADC_MAX, threshold)) / ADC_MAX);
         canvas.drawLine(0.0f, thresholdY, width, thresholdY, thresholdPaint);
 
+        // Centre tick: position (n + 1) * 500 sits between the two middle sensors.
+        int slots = valueCount > 0 ? valueCount : COUNT;
+        float centreX = column * slots * 0.5f;
+        fillPaint.setColor(MUTED);
+        rect.set(centreX - dp(1), bottom + dp(3), centreX + dp(1), bottom + markerRow);
+        canvas.drawRect(rect, fillPaint);
+
         // Firmware position: sensor k (1..16) on the line gives k * 1000.
         if ((valueCount > 0) && (actives > 0)) {
             float markerX = column * (position / 1000.0f - 0.5f);

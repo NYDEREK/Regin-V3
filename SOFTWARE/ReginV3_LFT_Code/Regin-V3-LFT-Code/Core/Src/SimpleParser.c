@@ -33,9 +33,6 @@ volatile uint8_t ManualDriveActive = 0u;
 static float TireCleanSpeed = ROBOT_CLEAN_SPEED_DEFAULT;
 static volatile uint32_t ManualDriveLastTick = 0u;
 
-/*Sensor indexes from left to right, same order as SensorRead() in Line_Follower.c*/
-static const uint8_t SensorOrder[16] = {2, 10, 6, 14, 3, 11, 7, 15, 0, 8, 4, 12, 1, 9, 5, 13};
-
 static void UartSend(const char *text)
 {
 	HAL_UART_Transmit(&huart1, (uint8_t *)text, strlen(text), 500);
@@ -555,9 +552,10 @@ void Parser_ServiceTelemetry(LineFollower_t *LF)
 	int len = snprintf(tx, sizeof(tx), "DBG,%d,%d,%d,0,0,0.0,0.0,0.0000,0.0000,0.00,0.00,0.00",
 					   LF->SensorPosition, LF->actives, LF->Last_end);
 
-	for (uint8_t i = 0u; (i < 16u) && (len > 0) && (len < (int)sizeof(tx)); i++)
+	/*Sensors from the robot's left to its right*/
+	for (uint8_t i = 0u; (i < LF_SENSOR_COUNT) && (len > 0) && (len < (int)sizeof(tx)); i++)
 	{
-		len += snprintf(&tx[len], sizeof(tx) - (size_t)len, ",%u", (unsigned int)LF->SensorArray[SensorOrder[i]]);
+		len += snprintf(&tx[len], sizeof(tx) - (size_t)len, ",%u", (unsigned int)LF->SensorArray[LF_SensorOrder[i]]);
 	}
 
 	if ((len > 0) && (len < ((int)sizeof(tx) - 2)))
