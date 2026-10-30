@@ -21,11 +21,7 @@ static int SensorRead(LineFollower_t *LF)
 	{
 		pos += 1000;
 		active++;
-		if(HAL_GetTick() > (LF->LastEndTimer + 1))
-		{
- 			LF->LastEndTimer = HAL_GetTick();
-			LF->Last_end = 0;
-		}
+		LF->Last_end = 0;
 	}
 	if (LF->SensorArray[10] > LF->treshold)
 	{
@@ -101,11 +97,7 @@ static int SensorRead(LineFollower_t *LF)
 	{
 		pos += 16000;
 		active++;
-		if(HAL_GetTick() > (LF->LastEndTimer + 1))
-		{
-			LF->LastEndTimer = HAL_GetTick();
-			LF->Last_end = 1;
-		}
+		LF->Last_end = 1;
 	}
 
 	LF->actives = active;
