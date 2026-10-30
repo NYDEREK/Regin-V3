@@ -216,7 +216,6 @@ int main(void)
     __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
 
     /*Sensor Preparation and entering STOP mode*/
-    GRUZIK.LastEndTimer = HAL_GetTick();
     GRUZIK.treshold = 3700;//1500
     GRUZIK.LineFollowing = 0;
     GRUZIK.PowerMode = Stop;

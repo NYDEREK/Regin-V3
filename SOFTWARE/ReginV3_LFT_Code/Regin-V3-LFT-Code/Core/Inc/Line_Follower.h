@@ -10,6 +10,7 @@
 
 #define LF_SENSOR_COUNT     16
 #define LF_POSITION_CENTER  8500
+#define LF_EDGE_SENSORS     3   //outer sensors per side that set Last_end
 
 typedef struct
 {
@@ -55,7 +56,6 @@ typedef struct
 	//Sensor
 	uint8_t SensorValues[12];
 	uint16_t treshold;
-	uint32_t LastEndTimer;
 	int Last_end;
 	int Last_idle;
 	int SensorPosition;
