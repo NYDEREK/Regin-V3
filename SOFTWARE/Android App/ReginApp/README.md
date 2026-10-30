@@ -15,7 +15,7 @@ Build debug, mozna go zainstalowac obok aplikacji GRUZIK4.0 (inny `applicationId
 
 ## Zakladki
 
-- `Drive` - turbina (predkosc 0-1000, czas rozpedzania w ms), PID, predkosci, presety, czyszczenie opon. `Sharp bend outer/inner` i `Bend outer/inner` to predkosc zewnetrznego i wewnetrznego kola przy szukaniu zgubionej linii (komendy `*_left` i `*_right`). `Start` wysyla wszystkie wartosci i startuje robota, `Stop` jest zawsze na gorze.
+- `Drive` - turbina (predkosc 0-1000, czas rozpedzania w ms), PID, predkosci, presety, czyszczenie opon. `Sharp bend left/right` i `Bend left/right` to predkosci kol przy szukaniu zgubionej linii (komendy `*_left` i `*_right`, kierunki jak w oryginalnym kodzie). `Start` wysyla wszystkie wartosci i startuje robota, `Stop` jest zawsze na gorze.
 - `Sensors` - wszystkie 16 czujnikow jako slupki z wartoscia ADC nad kazdym, od lewej do prawej. Przerywana linia to `Threshold` z zakladki `Drive`, jasne slupki sa powyzej progu, trojkat pod slupkami pokazuje pozycje linii, a kreska obok niego srodek listwy. Pod wykresem `Error` (tak jak w PID: `pozycja - 8500`, plus = linia na prawo od srodka) i `Position / centre`, np. `10500 / 8500`. Stream dziala tylko gdy robot stoi.
 - `Joystick` - reczna jazda, robot staje po puszczeniu albo po 350 ms bez pakietow.
 - `Log` - wszystko co poszlo do robota i co wrocilo.

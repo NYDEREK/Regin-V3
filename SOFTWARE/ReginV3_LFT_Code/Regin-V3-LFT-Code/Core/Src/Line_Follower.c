@@ -116,9 +116,9 @@ void motor_control(LineFollower_t* LF, float pos_right, float pos_left)
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, (uint32_t)(pos_right));//PRAWY_przod
 	}
 }
-/*Line lost: spin towards the edge that saw it last.
- * Sharp_bend_speed_left / Bend_speed_left drive the outer wheel,
- * Sharp_bend_speed_right / Bend_speed_right the inner wheel*/
+/*Line lost. Motor directions are the same as in the original code (the tuned
+ * Sharp_bend / Bend values depend on it): Last_end = 1 -> right motor gets *_left,
+ * left motor *_right; Last_end = 0 -> the other way round*/
 void sharp_turn(LineFollower_t *LF)
 {
 
@@ -126,22 +126,22 @@ void sharp_turn(LineFollower_t *LF)
 	{
 		if (LF->Last_end == 1)
 		{
-			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_right, GRUZIK.Sharp_bend_speed_left);
+			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_left, GRUZIK.Sharp_bend_speed_right);
 		}
 		else
 		{
-			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_left, GRUZIK.Sharp_bend_speed_right);
+			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_right, GRUZIK.Sharp_bend_speed_left);
 		}
 	}
 	else
 	{
 		if (LF->Last_end == 1)
 		{
-			motor_control(&GRUZIK, GRUZIK.Bend_speed_right, GRUZIK.Bend_speed_left);
+			motor_control(&GRUZIK, GRUZIK.Bend_speed_left, GRUZIK.Bend_speed_right);
 		}
 		else
 		{
-			motor_control(&GRUZIK, GRUZIK.Bend_speed_left, GRUZIK.Bend_speed_right);
+			motor_control(&GRUZIK, GRUZIK.Bend_speed_right, GRUZIK.Bend_speed_left);
 		}
 	}
 }

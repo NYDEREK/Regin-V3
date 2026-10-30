@@ -17,8 +17,8 @@ Najwazniejsze pliki:
 - czujnik 1 jest po lewej stronie robota, 16 po prawej (patrzac w kierunku jazdy), kolejnosc jest w `LF_SensorOrder` w `Line_Follower.c`.
 - pozycja linii: czujnik k waży `k * 1000`, czyli 1000 (lewa krawedz) .. 16000 (prawa), srodek 8500.
 - `error = pozycja - 8500`: plus oznacza linie na prawo od srodka, wtedy lewy silnik przyspiesza i robot skreca w prawo.
-- `Last_end`: 0 = linie ostatnio widzial lewy skrajny czujnik, 1 = prawy. Po zgubieniu linii `sharp_turn()` kreci w te strone.
-- `Sharp_bend_speed_left` / `Bend_speed_left` to zewnetrzne kolo w tym skrecie, `*_right` wewnetrzne (domyslnie 120 i -75).
+- `Last_end`: 0 = linie ostatnio widzial jeden z 3 lewych skrajnych czujnikow, 1 = jeden z 3 prawych. Zapisuje sie od razu, bez timera.
+- `sharp_turn()` (zgubiona linia) ma kierunki jak w oryginalnym kodzie, bo pod nie sa dobrane wartosci Sharp bend / Bend: przy `Last_end = 1` prawy silnik dostaje `*_left`, lewy `*_right`, przy `Last_end = 0` odwrotnie.
 
 ## Aplikacja Android
 
