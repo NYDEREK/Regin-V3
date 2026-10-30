@@ -22,8 +22,6 @@ static int SensorRead(LineFollower_t *LF)
 {
 	int pos = 0;
 	int active = 0;
-	uint8_t left_edge = 0;
-	uint8_t right_edge = 0;
 
 	for (uint8_t i = 0; i < LF_SENSOR_COUNT; i++)
 	{
@@ -31,27 +29,18 @@ static int SensorRead(LineFollower_t *LF)
 		{
 			pos += (i + 1) * 1000;
 			active++;
-
-			if (i < LF_EDGE_SENSORS)
-			{
-				left_edge = 1;
-			}
-			if (i >= (LF_SENSOR_COUNT - LF_EDGE_SENSORS))
-			{
-				right_edge = 1;
-			}
 		}
 	}
 
-	/*Last edge that saw the line, sharp_turn() searches on that side: 0 = left, 1 = right.
-	 * Any of the LF_EDGE_SENSORS outer sensors on a side counts, updated on every read.
-	 * Both edges at once (crossing line) is ambiguous, the previous side is kept*/
-	if (left_edge && !right_edge)
+	/*Last edge that saw the line, sharp_turn() searches on that side: 0 = left, 1 = right*/
+	if ((LF->SensorArray[LF_SensorOrder[0]] > LF->treshold) && (HAL_GetTick() > (LF->LastEndTimer + 1)))
 	{
+		LF->LastEndTimer = HAL_GetTick();
 		LF->Last_end = 0;
 	}
-	else if (right_edge && !left_edge)
+	if ((LF->SensorArray[LF_SensorOrder[LF_SENSOR_COUNT - 1]] > LF->treshold) && (HAL_GetTick() > (LF->LastEndTimer + 1)))
 	{
+		LF->LastEndTimer = HAL_GetTick();
 		LF->Last_end = 1;
 	}
 
@@ -116,9 +105,9 @@ void motor_control(LineFollower_t* LF, float pos_right, float pos_left)
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_2, (uint32_t)(pos_right));//PRAWY_przod
 	}
 }
-/*Line lost. Motor directions are the same as in the original code (the tuned
- * Sharp_bend / Bend values depend on it): Last_end = 1 -> right motor gets *_left,
- * left motor *_right; Last_end = 0 -> the other way round*/
+/*Line lost: spin towards the edge that saw it last.
+ * Sharp_bend_speed_left / Bend_speed_left drive the outer wheel,
+ * Sharp_bend_speed_right / Bend_speed_right the inner wheel*/
 void sharp_turn(LineFollower_t *LF)
 {
 
@@ -126,22 +115,22 @@ void sharp_turn(LineFollower_t *LF)
 	{
 		if (LF->Last_end == 1)
 		{
-			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_left, GRUZIK.Sharp_bend_speed_right);
+			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_right, GRUZIK.Sharp_bend_speed_left);
 		}
 		else
 		{
-			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_right, GRUZIK.Sharp_bend_speed_left);
+			motor_control(&GRUZIK, GRUZIK.Sharp_bend_speed_left, GRUZIK.Sharp_bend_speed_right);
 		}
 	}
 	else
 	{
 		if (LF->Last_end == 1)
 		{
-			motor_control(&GRUZIK, GRUZIK.Bend_speed_left, GRUZIK.Bend_speed_right);
+			motor_control(&GRUZIK, GRUZIK.Bend_speed_right, GRUZIK.Bend_speed_left);
 		}
 		else
 		{
-			motor_control(&GRUZIK, GRUZIK.Bend_speed_right, GRUZIK.Bend_speed_left);
+			motor_control(&GRUZIK, GRUZIK.Bend_speed_left, GRUZIK.Bend_speed_right);
 		}
 	}
 }

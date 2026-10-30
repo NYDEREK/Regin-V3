@@ -289,10 +289,11 @@ public class MainActivity extends Activity {
 
         page.addView(sectionLabel("Speed"), matchWrap());
         page.addView(fieldRow("Base_speed", "Base", "125", "Max_speed", "Max", "200"), matchWrap());
-        page.addView(fieldRow("Sharp_bend_speed_left", "Sharp bend left", "120",
-                "Sharp_bend_speed_right", "Sharp bend right", "-75"), matchWrap());
-        page.addView(fieldRow("Bend_speed_left", "Bend left", "120",
-                "Bend_speed_right", "Bend right", "-75"), matchWrap());
+        // Line lost: the outer wheel gets *_left, the inner wheel *_right (see sharp_turn())
+        page.addView(fieldRow("Sharp_bend_speed_left", "Sharp bend outer", "120",
+                "Sharp_bend_speed_right", "Sharp bend inner", "-75"), matchWrap());
+        page.addView(fieldRow("Bend_speed_left", "Bend outer", "120",
+                "Bend_speed_right", "Bend inner", "-75"), matchWrap());
 
         Button sendButton = button("Send values", STYLE_QUIET);
         page.addView(sendButton, topMargin(10));
