@@ -8,7 +8,7 @@
 #ifndef INC_RINGBUFFER_H_
 #define INC_RINGBUFFER_H_
 
-#define RING_BUFFER_SIZE 64
+#define RING_BUFFER_SIZE 256
 
 // Success Status
 typedef enum

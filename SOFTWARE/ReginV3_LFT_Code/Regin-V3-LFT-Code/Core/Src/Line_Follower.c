@@ -136,6 +136,10 @@ static int SensorRead(LineFollower_t *LF)
 
 	return LF->SensorPosition;
 }
+int LineFollower_UpdatePosition(LineFollower_t *LF)
+{
+	return SensorRead(LF);
+}
 void motor_control(LineFollower_t* LF, float pos_right, float pos_left)
 {
 	if(pos_left < 0)

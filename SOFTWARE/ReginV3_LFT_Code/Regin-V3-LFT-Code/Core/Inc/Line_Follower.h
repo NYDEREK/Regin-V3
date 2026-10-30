@@ -101,6 +101,7 @@ enum PowerState
 };
 //Functions
 void PID_control(LineFollower_t *LF);
+int LineFollower_UpdatePosition(LineFollower_t *LF);
 float GetAverageSpeed(LineFollower_t *LF);
 void motor_control(LineFollower_t* LF, float pos_right, float pos_left);
 
