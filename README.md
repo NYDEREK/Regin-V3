@@ -12,32 +12,19 @@ Najwazniejsze pliki:
 - `Core/Src/SimpleParser.c` - komendy Bluetooth z aplikacji.
 - `Core/Inc/robot_config.h` - stale robota (PWM, ESC, bateria, Bluetooth).
 
-## Konwencja czujnikow i PID
+## Komunikacja z aplikacja GRUZIK4.0
 
-Firmware ma oryginalny uklad kierunkow (stan z commita `a179ecc`):
+Firmware mowi tym samym protokolem co [GRUZIK4.0](https://github.com/NYDEREK/GRUZIK4.0), wiec Regina mozna sterowac aplikacja Android z tamtego repo (`Android App/RobotApp`). Wystarczy sparowac modul HC-04 (UART 9600) i polaczyc sie z aplikacji.
 
-- pozycja linii liczona w `SensorRead()` w `Line_Follower.c`: 1000 to prawa krawedz listwy (`SensorArray[2]`), 16000 lewa (`SensorArray[13]`), srodek 8500.
-- `error = 8500 - pozycja`: plus oznacza linie na prawo od srodka, wtedy lewy silnik przyspiesza i robot skreca w prawo.
-- `Last_end`: 0 = linie ostatnio widzial prawy skrajny czujnik, 1 = lewy (z timerem ok. 2 ms).
-- `sharp_turn()` (zgubiona linia): przy `Last_end = 1` prawy silnik dostaje `*_right`, lewy `*_left`, przy `Last_end = 0` odwrotnie.
-- aplikacja odwraca kolejnosc czujnikow, wiec na wykresie slupek 1 jest po lewej stronie robota.
+Co dziala:
 
-## Aplikacja Android
+- `Drive` - nastawy PID i predkosci, start (`StartNormal=1`, `Mode=Y`) i stop (`Mode=N`).
+- `Joystick` - `Manual=<lewy>,<prawy>`, robot staje po 350 ms bez pakietow.
+- czyszczenie opon - `CleanSpeed=<pwm>`, `Clean=1`, `Clean=0`.
+- `Debug` - `Telemetry=debug` wysyla linie `DBG,...` z pozycja linii i surowymi odczytami czujnikow (od lewej do prawej). Aplikacja pokazuje pierwsze 12 z 16 czujnikow.
+- zmiana nazwy modulu - `BtNameNow=<nazwa>` (modul musi byc w trybie AT).
 
-Wlasna aplikacja Regina jest w `SOFTWARE/Android App/ReginApp`, gotowy plik: `apk/REGIN-V3-debug.apk`. Ma zakladki `Drive` (turbina, PID, predkosci), `Sensors` (wszystkie 16 czujnikow jako slupki z wartosciami), `Joystick`, `Log` i `Settings`. Szczegoly w README aplikacji.
-
-Firmware mowi tym samym protokolem co [GRUZIK4.0](https://github.com/NYDEREK/GRUZIK4.0), wiec dziala tez aplikacja z tamtego repo (`Android App/RobotApp`), ale pokazuje tylko 12 czujnikow i ma zakladki mapowania, ktorych Regin nie obsluguje. Modul Bluetooth to HC-04 na UART 9600.
-
-Komendy:
-
-- nastawy: `Kp`, `Kd`, `Treshold`, `Base_speed`, `Max_speed`, `Sharp_bend_speed_left/right`, `Bend_speed_left/right`, `Turbine_Speed`, `Turbine_Prep_Time`.
-- start i stop: `StartNormal=1`, `Mode=Y`, `Mode=N`.
-- joystick: `Manual=<lewy>,<prawy>`, robot staje po 350 ms bez pakietow.
-- czyszczenie opon: `CleanSpeed=<pwm>`, `Clean=1`, `Clean=0`.
-- czujniki: `Telemetry=debug` wysyla co 250 ms linie `DBG,<pozycja>,<aktywne>,<ostatni koniec>,<9 pol enkoderow/IMU = 0>,<S1>..<S16>` (S1 = prawa krawedz, S16 = lewa), `Telemetry=off` konczy.
-- nazwa modulu: `BtNameNow=<nazwa>` (modul musi byc w trybie AT).
-
-Regin nie ma enkoderow, IMU ani karty SD, wiec mapowanie i odometria (zakladki `Mapping` i `Odometry` w aplikacji GRUZIK4.0) nie dzialaja. Robot odpowiada wtedy bledem i nie rusza:
+Regin nie ma enkoderow, IMU ani karty SD, wiec zakladki `Mapping` i `Odometry` nie dzialaja. Robot odpowiada wtedy bledem i nie rusza:
 
 ```text
 MAP_ERROR,unsupported,no_odometry_sd
