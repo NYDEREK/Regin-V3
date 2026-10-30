@@ -9,7 +9,7 @@
 
 RB_Status RB_Write(RingBuffer_t *Buf, uint8_t value)
 {
-	uint16_t HeadTmp = (Buf->Head + 1) % RING_BUFFER_SIZE;
+	uint8_t HeadTmp = (Buf->Head + 1) % RING_BUFFER_SIZE;
 
 	if(HeadTmp == Buf->Tail)
 	{
