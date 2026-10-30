@@ -289,11 +289,10 @@ public class MainActivity extends Activity {
 
         page.addView(sectionLabel("Speed"), matchWrap());
         page.addView(fieldRow("Base_speed", "Base", "125", "Max_speed", "Max", "200"), matchWrap());
-        // Line lost: the outer wheel gets *_left, the inner wheel *_right (see sharp_turn())
-        page.addView(fieldRow("Sharp_bend_speed_left", "Sharp bend outer", "120",
-                "Sharp_bend_speed_right", "Sharp bend inner", "-75"), matchWrap());
-        page.addView(fieldRow("Bend_speed_left", "Bend outer", "120",
-                "Bend_speed_right", "Bend inner", "-75"), matchWrap());
+        page.addView(fieldRow("Sharp_bend_speed_left", "Sharp bend left", "120",
+                "Sharp_bend_speed_right", "Sharp bend right", "-75"), matchWrap());
+        page.addView(fieldRow("Bend_speed_left", "Bend left", "120",
+                "Bend_speed_right", "Bend right", "-75"), matchWrap());
 
         Button sendButton = button("Send values", STYLE_QUIET);
         page.addView(sendButton, topMargin(10));
@@ -391,9 +390,10 @@ public class MainActivity extends Activity {
         sensorSummaryText.setTypeface(Typeface.MONOSPACE);
         page.addView(sensorSummaryText, topMargin(10));
 
-        TextView legend = label("Streams only while the robot is stopped. Dashed line is the threshold, "
-                + "tick under the bars is the centre. Error = position - centre, same as the PID: "
-                + "plus means the line is right of the centre.", 13, MUTED);
+        TextView legend = label("Streams only while the robot is stopped. Bars from the robot's left to right, "
+                + "dashed line is the threshold, tick under the bars is the centre. "
+                + "Position and error as in the firmware: position 1000 is the right edge, "
+                + "error = centre - position, plus means the line is right of the centre.", 13, MUTED);
         page.addView(legend, topMargin(6));
         return page;
     }
@@ -711,20 +711,22 @@ public class MainActivity extends Activity {
         int lastEnd = Math.round(parseFloatToken(tokens, 3, 0.0f));
 
         // DBG,pos,active,last_end,<9 encoder/IMU fields>,S1..S16
+        // Firmware order runs from the robot's right edge (position 1000) to its left edge,
+        // the bars are drawn from left to right, so both are mirrored here.
         int count = Math.min(SensorBarsView.COUNT, tokens.length - 13);
         int[] values = new int[count];
         for (int i = 0; i < count; i++) {
-            values[i] = Math.round(parseFloatToken(tokens, 13 + i, 0.0f));
+            values[count - 1 - i] = Math.round(parseFloatToken(tokens, 13 + i, 0.0f));
         }
 
         setStreaming(true);
-        sensorBars.setData(values, position, active);
+        sensorBars.setData(values, (count + 1) * 1000 - position, active);
 
-        // Same as PID_control(): error = position - centre, plus = line right of the centre
+        // Same as PID_control(): error = centre - position, plus = line right of the centre
         int centre = sensorCentre(count);
-        String lastEndText = "Last end " + (lastEnd == 1 ? "right" : "left");
+        String lastEndText = "Last end " + (lastEnd == 1 ? "left" : "right");
         if (active > 0) {
-            int error = position - centre;
+            int error = centre - position;
             sensorErrorText.setText(error > 0 ? "+" + error : String.valueOf(error));
             sensorPositionText.setText(position + " / " + centre);
             sensorSummaryText.setText(String.format(Locale.US, "Active %-4d %s", active, lastEndText));

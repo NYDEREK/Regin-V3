@@ -14,11 +14,13 @@ Najwazniejsze pliki:
 
 ## Konwencja czujnikow i PID
 
-- czujnik 1 jest po lewej stronie robota, 16 po prawej (patrzac w kierunku jazdy), kolejnosc jest w `LF_SensorOrder` w `Line_Follower.c`.
-- pozycja linii: czujnik k waży `k * 1000`, czyli 1000 (lewa krawedz) .. 16000 (prawa), srodek 8500.
-- `error = pozycja - 8500`: plus oznacza linie na prawo od srodka, wtedy lewy silnik przyspiesza i robot skreca w prawo.
-- `Last_end`: 0 = linie ostatnio widzial lewy skrajny czujnik, 1 = prawy. Po zgubieniu linii `sharp_turn()` kreci w te strone.
-- `Sharp_bend_speed_left` / `Bend_speed_left` to zewnetrzne kolo w tym skrecie, `*_right` wewnetrzne (domyslnie 120 i -75).
+Firmware ma oryginalny uklad kierunkow (stan z commita `a179ecc`):
+
+- pozycja linii liczona w `SensorRead()` w `Line_Follower.c`: 1000 to prawa krawedz listwy (`SensorArray[2]`), 16000 lewa (`SensorArray[13]`), srodek 8500.
+- `error = 8500 - pozycja`: plus oznacza linie na prawo od srodka, wtedy lewy silnik przyspiesza i robot skreca w prawo.
+- `Last_end`: 0 = linie ostatnio widzial prawy skrajny czujnik, 1 = lewy (z timerem ok. 2 ms).
+- `sharp_turn()` (zgubiona linia): przy `Last_end = 1` prawy silnik dostaje `*_right`, lewy `*_left`, przy `Last_end = 0` odwrotnie.
+- aplikacja odwraca kolejnosc czujnikow, wiec na wykresie slupek 1 jest po lewej stronie robota.
 
 ## Aplikacja Android
 
@@ -32,7 +34,7 @@ Komendy:
 - start i stop: `StartNormal=1`, `Mode=Y`, `Mode=N`.
 - joystick: `Manual=<lewy>,<prawy>`, robot staje po 350 ms bez pakietow.
 - czyszczenie opon: `CleanSpeed=<pwm>`, `Clean=1`, `Clean=0`.
-- czujniki: `Telemetry=debug` wysyla co 250 ms linie `DBG,<pozycja>,<aktywne>,<ostatni koniec>,<9 pol enkoderow/IMU = 0>,<S1>..<S16>` (czujniki od lewej do prawej), `Telemetry=off` konczy.
+- czujniki: `Telemetry=debug` wysyla co 250 ms linie `DBG,<pozycja>,<aktywne>,<ostatni koniec>,<9 pol enkoderow/IMU = 0>,<S1>..<S16>` (S1 = prawa krawedz, S16 = lewa), `Telemetry=off` konczy.
 - nazwa modulu: `BtNameNow=<nazwa>` (modul musi byc w trybie AT).
 
 Regin nie ma enkoderow, IMU ani karty SD, wiec mapowanie i odometria (zakladki `Mapping` i `Odometry` w aplikacji GRUZIK4.0) nie dzialaja. Robot odpowiada wtedy bledem i nie rusza:
