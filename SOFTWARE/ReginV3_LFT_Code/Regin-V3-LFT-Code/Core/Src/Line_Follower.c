@@ -12,88 +12,140 @@ extern LineFollower_t GRUZIK;
 
 #define PI_MOTOR_SPEED_REGULATION 1
 
+/*The colour seen by most sensors is the surface, the line is the colour there is less of.
+ * More than half of the sensors above treshold -> dark surface, follow the light line*/
+static void UpdateSurface(LineFollower_t *LF, uint8_t reads_to_switch)
+{
+	uint8_t above = 0;
+	uint8_t inverted = LF->LineInverted;
+
+	for (uint8_t i = 0; i < 16; i++)
+	{
+		if (LF->SensorArray[i] > LF->treshold)
+		{
+			above++;
+		}
+	}
+
+	if (above > 8)
+	{
+		inverted = 1;
+	}
+	else if (above < 8)
+	{
+		inverted = 0;
+	}
+
+	if (inverted == LF->LineInverted)
+	{
+		LF->SurfaceSwitchReads = 0;
+	}
+	else if (++LF->SurfaceSwitchReads >= reads_to_switch)
+	{
+		LF->LineInverted = inverted;
+		LF->SurfaceSwitchReads = 0;
+	}
+}
+
+/*Sensor sees the line: above treshold on a light surface, below it on a dark one*/
+static uint8_t OnLine(LineFollower_t *LF, uint8_t index)
+{
+	uint8_t above = (LF->SensorArray[index] > LF->treshold) ? 1 : 0;
+
+	return LF->LineInverted ? !above : above;
+}
+
+/*Surface colour straight from the current reading, used at start*/
+void LineFollower_DetectSurface(LineFollower_t *LF)
+{
+	LF->SurfaceSwitchReads = 0;
+	UpdateSurface(LF, 1);
+}
+
 static int SensorRead(LineFollower_t *LF)
 {
 	int pos = 0;
 	int active = 0;
 
-	if (LF->SensorArray[2] > LF->treshold)
+	UpdateSurface(LF, LF_SURFACE_SWITCH_READS);
+
+	if (OnLine(LF, 2))
 	{
 		pos += 1000;
 		active++;
 		LF->Last_end = 0;
 	}
-	if (LF->SensorArray[10] > LF->treshold)
+	if (OnLine(LF, 10))
 	{
 		pos += 2000;
 		active++;
 	}
-	if (LF->SensorArray[6] > LF->treshold)
+	if (OnLine(LF, 6))
 	{
 		pos += 3000;
 		active++;
 	}
-	if (LF->SensorArray[14] > LF->treshold)
+	if (OnLine(LF, 14))
 	{
 		pos += 4000;
 		active++;
 	}
-	if (LF->SensorArray[3] > LF->treshold)
+	if (OnLine(LF, 3))
 	{
 		pos += 5000;
 		active++;
 	}
-	if (LF->SensorArray[11] > LF->treshold)
+	if (OnLine(LF, 11))
 	{
 		pos += 6000;
 		active++;
 	}
-	if (LF->SensorArray[7] > LF->treshold)
+	if (OnLine(LF, 7))
 	{
 		pos += 7000;
 		active++;
 	}
-	if (LF->SensorArray[15] > LF->treshold)
+	if (OnLine(LF, 15))
 	{
 		pos += 8000;
 		active++;
 	}
-	if (LF->SensorArray[0] > LF->treshold)
+	if (OnLine(LF, 0))
 	{
 		pos += 9000;
 		active++;
 	}
-	if (LF->SensorArray[8] > LF->treshold)
+	if (OnLine(LF, 8))
 	{
 		pos += 10000;
 		active++;
 	}
-	if (LF->SensorArray[4] > LF->treshold)
+	if (OnLine(LF, 4))
 	{
 		pos += 11000;
 		active++;
 	}
-	if (LF->SensorArray[12] > LF->treshold)
+	if (OnLine(LF, 12))
 	{
 		pos += 12000;
 		active++;
 	}
-	if (LF->SensorArray[1] > LF->treshold)
+	if (OnLine(LF, 1))
 	{
 		pos += 13000;
 		active++;
 	}
-	if (LF->SensorArray[9] > LF->treshold)
+	if (OnLine(LF, 9))
 	{
 		pos += 14000;
 		active++;
 	}
-	if (LF->SensorArray[5] > LF->treshold)
+	if (OnLine(LF, 5))
 	{
 		pos += 15000;
 		active++;
 	}
-	if (LF->SensorArray[13] > LF->treshold)
+	if (OnLine(LF, 13))
 	{
 		pos += 16000;
 		active++;

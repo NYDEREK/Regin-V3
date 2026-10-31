@@ -656,6 +656,7 @@ static void StartRobot(LineFollower_t *LF)
 	LF->Error_P = 0.0f;
 	LF->Error_D = 0.0f;
 	LF->Last_idle = 0;
+	LineFollower_DetectSurface(LF);
 
 	snprintf(buffer, sizeof(buffer), "Start\r\nBattery = %0.2f V\r\nSpeed_level = %0.2f\r\n",
 			 LF->battery_voltage, LF->Speed_level);

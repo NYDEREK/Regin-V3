@@ -8,6 +8,10 @@
 #ifndef INC_LINE_FOLLOWER_H_
 #define INC_LINE_FOLLOWER_H_
 
+//Reads (PID, 5 ms each) the other colour has to dominate before the surface colour switches.
+//A crossing line is shorter than that, a section with a white line on black is much longer.
+#define LF_SURFACE_SWITCH_READS 10
+
 typedef struct
 {
 	//Power mode
@@ -52,6 +56,8 @@ typedef struct
 	//Sensor
 	uint8_t SensorValues[12];
 	uint16_t treshold;
+	uint8_t LineInverted;        //0 = line above treshold (black line), 1 = below (white line on black)
+	uint8_t SurfaceSwitchReads;  //reads in a row where the other colour dominated
 	int Last_end;
 	int Last_idle;
 	int SensorPosition;
@@ -101,6 +107,7 @@ enum PowerState
 //Functions
 void PID_control(LineFollower_t *LF);
 int LineFollower_UpdatePosition(LineFollower_t *LF);
+void LineFollower_DetectSurface(LineFollower_t *LF);
 float GetAverageSpeed(LineFollower_t *LF);
 void motor_control(LineFollower_t* LF, float pos_right, float pos_left);
 
