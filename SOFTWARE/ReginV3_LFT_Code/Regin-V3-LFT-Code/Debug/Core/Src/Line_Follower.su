@@ -1,6 +1,10 @@
-../Core/Src/Line_Follower.c:15:12:SensorRead	24	static
-../Core/Src/Line_Follower.c:139:6:motor_control	24	static
-../Core/Src/Line_Follower.c:168:6:sharp_turn	16	static
-../Core/Src/Line_Follower.c:194:6:forward_brake	24	static
-../Core/Src/Line_Follower.c:205:6:past_errors	24	static
-../Core/Src/Line_Follower.c:211:6:PID_control	32	static
+../Core/Src/Line_Follower.c:17:13:UpdateSurface	24	static
+../Core/Src/Line_Follower.c:51:16:OnLine	24	static
+../Core/Src/Line_Follower.c:59:6:LineFollower_DetectSurface	16	static
+../Core/Src/Line_Follower.c:65:12:SensorRead	24	static
+../Core/Src/Line_Follower.c:187:5:LineFollower_UpdatePosition	16	static
+../Core/Src/Line_Follower.c:191:6:motor_control	24	static
+../Core/Src/Line_Follower.c:220:6:sharp_turn	16	static
+../Core/Src/Line_Follower.c:246:6:forward_brake	24	static
+../Core/Src/Line_Follower.c:257:6:past_errors	24	static
+../Core/Src/Line_Follower.c:263:6:PID_control	32	static

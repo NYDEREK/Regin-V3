@@ -83,7 +83,7 @@ void SensorRead()
         HAL_GPIO_WritePin(S2_GPIO_Port, S2_Pin, (val & 0x02) ? GPIO_PIN_SET : GPIO_PIN_RESET);
         HAL_GPIO_WritePin(S3_GPIO_Port, S3_Pin, (val & 0x01) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 
-        delay_us(100);
+        delay_us(25);
 
         GRUZIK.SensorArray[val] = GRUZIK.Adc1_Values[0];
     }
@@ -228,7 +228,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	  SensorRead();
+	  SensorRead();//multiplekser link, blocking function
 
 	  /*Blink LED1*/
 	if(HAL_GetTick() > (lasttime1 + 500))

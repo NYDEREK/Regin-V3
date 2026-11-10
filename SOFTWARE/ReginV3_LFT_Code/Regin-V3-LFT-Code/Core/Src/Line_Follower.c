@@ -79,11 +79,13 @@ static int SensorRead(LineFollower_t *LF)
 	{
 		pos += 2000;
 		active++;
+		LF->Last_end = 0;
 	}
 	if (OnLine(LF, 6))
 	{
 		pos += 3000;
 		active++;
+		LF->Last_end = 0;
 	}
 	if (OnLine(LF, 14))
 	{
@@ -139,11 +141,13 @@ static int SensorRead(LineFollower_t *LF)
 	{
 		pos += 14000;
 		active++;
+		LF->Last_end = 1;
 	}
 	if (OnLine(LF, 5))
 	{
 		pos += 15000;
 		active++;
+		LF->Last_end = 1;
 	}
 	if (OnLine(LF, 13))
 	{

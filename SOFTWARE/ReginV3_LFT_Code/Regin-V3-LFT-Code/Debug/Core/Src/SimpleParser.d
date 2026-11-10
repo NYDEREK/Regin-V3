@@ -34,7 +34,7 @@ Core/Src/SimpleParser.o: ../Core/Src/SimpleParser.c ../Core/Inc/main.h \
  ../Core/Inc/gpio.h ../Core/Inc/main.h ../Core/Src/usart.h \
  ../Core/Inc/RingBuffer.h ../Core/Inc/SimpleParser.h \
  ../Core/Inc/RingBuffer.h ../Core/Inc/Line_Follower.h \
- ../Core/Inc/Line_Follower.h
+ ../Core/Inc/Line_Follower.h ../Core/Inc/robot_config.h
 ../Core/Inc/main.h:
 ../Drivers/STM32G4xx_HAL_Driver/Inc/stm32g4xx_hal.h:
 ../Core/Inc/stm32g4xx_hal_conf.h:
@@ -76,3 +76,4 @@ Core/Src/SimpleParser.o: ../Core/Src/SimpleParser.c ../Core/Inc/main.h \
 ../Core/Inc/RingBuffer.h:
 ../Core/Inc/Line_Follower.h:
 ../Core/Inc/Line_Follower.h:
+../Core/Inc/robot_config.h:
